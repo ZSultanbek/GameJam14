@@ -19,15 +19,15 @@ class Player(pygame.sprite.Sprite):
         self.height = 20
         self.speed = player_speed
         self.rect = pygame.rect.Rect(50, 50, self.width, self.height)
-        
-    
+
+
     def update(self):
 
 
         pressed_key = pygame.key.get_pressed()
 
         next_rect = self.rect.copy()     
-        
+
         if pressed_key[pygame.K_LEFT]:
             if self.rect.bottomleft[0] > 0:
                 next_rect.move_ip(-self.speed, 0)
@@ -40,7 +40,7 @@ class Player(pygame.sprite.Sprite):
         if pressed_key[pygame.K_DOWN]:
             if self.rect.bottom < height_screen:
                 next_rect.move_ip(0, self.speed)
-        
+
 
         if next_rect.collidelist(walls.wall_rect_list) == -1:      
             self.rect = next_rect.copy()
@@ -75,17 +75,17 @@ class Enemy(pygame.sprite.Sprite):
         self.last_dx = 0
         self.last_dy = 0
         self.last_position = self.rect.topleft
-    
+
     def update(self, player_rect, walls):
-        
+
         if self.type == 1:
             dx, dy = self.type1(player_rect, walls)
         elif self.type == 2:
             dx, dy = self.type2(player_rect, walls)
         elif self.type == 3:
             dx, dy = self.type3(player_rect, walls)
-            
-            
+
+
 
         # Move towards the player
         self.rect.x += dx * self.speed
@@ -98,7 +98,7 @@ class Enemy(pygame.sprite.Sprite):
         pygame.draw.rect(surface, self.color, self.rect)
 
     def check_player(self, player_rect):
-        
+
         dx = player_rect.centerx - self.rect.centerx
         dy = player_rect.centery - self.rect.centery
         distance = max(1, (dx ** 2 + dy ** 2) ** 0.5)
@@ -110,7 +110,7 @@ class Enemy(pygame.sprite.Sprite):
     #chase player directly
     def type1(self, player_rect, walls):
         dx, dy = self.check_player(player_rect)
-        
+
         # Check for obstacles in the way
         if self.check_obstacle_collision(walls):
             # Rotate vector by 90 degrees to avoid obstacle
@@ -132,16 +132,16 @@ class Enemy(pygame.sprite.Sprite):
             elif self.last_dy != 0:
                 dx = dx if dx == 0 else dx / abs(dx)
                 dy = 0
-        
+
         return dx, dy
-    
+
 
     #runaway player
     def type3(self, player_rect, walls):
         dx, dy = self.check_player(player_rect)
-    
-        
-        
+
+
+
         # Check all possible directions of movement
         directions = [(0, 1), (0, -1), (1, 0), (-1, 0)]
         max_distance = 0
@@ -167,7 +167,7 @@ class Enemy(pygame.sprite.Sprite):
             dx = best_direction[0]
             dy = best_direction[1]
             self.last_position = self.rect.topleft
-        
+
         return dx, dy
 
 
@@ -197,11 +197,11 @@ class Walls(pygame.sprite.Sprite):
             self.wall_coor_list.append(wall_coor)
         for wall_rect in rect_list:
             self.wall_rect_list.append(wall_rect)
-    
+
     def draw(self, surface):
         for wall in self.wall_rect_list:
             pygame.draw.rect(surface, BLACK, wall)
-    
+
 
 #COLORS
 BLACK = (30, 30, 30)
@@ -247,27 +247,27 @@ def gameover(surface):
             elif event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_SPACE:
                     return True
-                
-    
+
+
 
 musictrack = "none"
 
 def main_menu():
 
     #background music
-    pygame.mixer_music.stop()
-    pygame.mixer_music.unload()
-    pygame.mixer_music.load(r"music\gamejam1menu.mp3")
-    pygame.mixer_music.play(-1)
+    #pygame.mixer_music.stop()
+    #pygame.mixer_music.unload()
+    #pygame.mixer_music.load(r"music\gamejam1menu.mp3")
+    #pygame.mixer_music.play(-1)
     musictrack = "menu"
-    
+
     #creating player and enemy
     player1.__init__()
     player1.speed = player_speed
     enemy1.__init__(1, 7, (250, 160, 40))
     enemy2.__init__(2, 4)
     enemy3.__init__(3, 10, (240, 160, 100))
-        
+
 
     while True:
 
@@ -302,20 +302,20 @@ def main_menu():
                 # Check if user clicked on any of the level options
                 if rect1.collidepoint(event.pos):
                     if musictrack == "menu":
-                        pygame.mixer_music.stop()
-                        pygame.mixer_music.unload
-                        pygame.mixer_music.load(r"music\gamejamlvl1.mp3") 
-                        pygame.mixer_music.play(-1)
+                        #pygame.mixer_music.stop()
+                        #pygame.mixer_music.unload
+                        #pygame.mixer_music.load(r"music\gamejamlvl1.mp3") 
+                        #pygame.mixer_music.play(-1)
                         musictrack = "lvl1"  
                     return 1
-                
-                        
+
+
                 elif rect2.collidepoint(event.pos):
                     if musictrack == "menu":
-                        pygame.mixer_music.stop()
-                        pygame.mixer_music.unload
-                        pygame.mixer_music.load(r"music\gamejamlvl2.mp3") 
-                        pygame.mixer_music.play(-1)
+                        #pygame.mixer_music.stop()
+                        #pygame.mixer_music.unload
+                        #pygame.mixer_music.load(r"music\gamejamlvl2.mp3") 
+                        #pygame.mixer_music.play(-1)
                         musictrack = "lvl2" 
                     # Start level 2
                     return 2
@@ -365,73 +365,64 @@ walls = Walls(
     wallsrect
 )
 
-        
+
 
 while True:
+
     if selected_level == 1:
         # Code to start level 1
-        
-
-
-        screen.fill((255,255,255))
-
-
-
-
+        screen.fill((255, 255, 255))
         player1.update()
-        #enemy1.update(player1.rect, walls.wall_rect_list)
-        #enemy2.update(player1.rect, walls.wall_rect_list)
         enemy3.update(player1.rect, walls.wall_rect_list)
-
         player1.draw(screen)
-        #enemy1.draw(screen)
-        #enemy2.draw(screen)
         enemy3.draw(screen)
         walls.draw(screen)
-    
-    
+
+        for enem in [enemy3]:
+            if player1.collision(enem):
+                if gameover(screen):
+                    player1.speed = 0
+                    #pygame.mixer_music.stop()
+                    #pygame.mixer_music.unload()
+                    selected_level = main_menu()
     elif selected_level == 2:
         # Code to start level 2
-            
-
-        screen.fill((255,255,255))
-
-
-
-
+        screen.fill((255, 255, 255))
         player1.update()
         enemy1.update(player1.rect, walls.wall_rect_list)
-        #enemy2.update(player1.rect, walls.wall_rect_list)
         enemy3.update(player1.rect, walls.wall_rect_list)
-
         player1.draw(screen)
         enemy1.draw(screen)
-        #enemy2.draw(screen)
         enemy3.draw(screen)
         walls.draw(screen)
-
-    
-    if selected_level == 3:
+        for enem in [enemy1, enemy3]:
+            if player1.collision(enem):
+                if gameover(screen):
+                    player1.speed = 0
+                    #pygame.mixer_music.stop()
+                    #pygame.mixer_music.unload()
+                    selected_level = main_menu()
+    elif selected_level == 3:
         # Code to start level 3
-            
-
-        screen.fill((255,255,255))
-
-
-
-
+        screen.fill((255, 255, 255))
         player1.update()
         enemy1.update(player1.rect, walls.wall_rect_list)
         enemy2.update(player1.rect, walls.wall_rect_list)
         enemy3.update(player1.rect, walls.wall_rect_list)
-
         player1.draw(screen)
         enemy1.draw(screen)
         enemy2.draw(screen)
         enemy3.draw(screen)
         walls.draw(screen)
+        for enem in [enemy1, enemy2, enemy3]:
+            if player1.collision(enem):
+                if gameover(screen):
+                    player1.speed = 0
+                    #pygame.mixer_music.stop()
+                    #pygame.mixer_music.unload()
+                    selected_level = main_menu()
 
-
+    
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             pygame.quit()
@@ -442,11 +433,11 @@ while True:
     #check if enemy is touching the player
     for enem in enem_list:
         if player1.collision(enem):
-            
+
             if gameover(screen):
                 player1.speed = 0
-                pygame.mixer_music.stop()
-                pygame.mixer_music.unload()    
+                #pygame.mixer_music.stop()
+                #pygame.mixer_music.unload()    
                 selected_level = main_menu()
 
     pygame.display.update()    
