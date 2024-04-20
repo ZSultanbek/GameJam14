@@ -6,14 +6,17 @@ pygame.init()
 
 
 
-player_speed = 10
 
+
+
+
+player_speed = 10
 #player and enemy and coin classes
 class Player(pygame.sprite.Sprite):
     def __init__(self):
         super().__init__()
-        self.width = 20
-        self.height = 30
+        self.width = 10
+        self.height = 20
         self.speed = player_speed
         self.rect = pygame.rect.Rect(50, 50, self.width, self.height)
         
@@ -38,6 +41,7 @@ class Player(pygame.sprite.Sprite):
             if self.rect.bottom < height_screen:
                 next_rect.move_ip(0, self.speed)
         
+
         if next_rect.collidelist(walls.wall_rect_list) == -1:      
             self.rect = next_rect.copy()
 
@@ -55,8 +59,8 @@ class Player(pygame.sprite.Sprite):
 class Enemy(pygame.sprite.Sprite):
     def __init__(self, type=None, speed=None, color=None):
         super().__init__()
-        self.width = 40
-        self.height = 50
+        self.width = 20
+        self.height = 20
 
         if color == None:
             color = (230, 90, 50)
@@ -103,6 +107,7 @@ class Enemy(pygame.sprite.Sprite):
 
         return dx, dy
 
+    #chase player directly
     def type1(self, player_rect, walls):
         dx, dy = self.check_player(player_rect)
         
@@ -113,6 +118,7 @@ class Enemy(pygame.sprite.Sprite):
 
         return dx, dy
 
+    #walk trhough walls
     def type2(self, player_rect, walls):
         dx, dy = self.check_player(player_rect)
 
@@ -129,6 +135,8 @@ class Enemy(pygame.sprite.Sprite):
         
         return dx, dy
     
+
+    #runaway player
     def type3(self, player_rect, walls):
         dx, dy = self.check_player(player_rect)
     
@@ -163,7 +171,8 @@ class Enemy(pygame.sprite.Sprite):
         return dx, dy
 
 
-
+    #def type4(self):
+    #
 
     def check_obstacle_collision(self, walls, next_rect=None):
         # Check if the enemy collides with any walls after moving
@@ -177,10 +186,13 @@ class Enemy(pygame.sprite.Sprite):
 
 
 class Walls(pygame.sprite.Sprite):
-    def __init__(self, wall_list, rect_list):
+    def __init__(self, wall_list, rect_list, type=None):
         super().__init__()
         self.wall_rect_list = []
         self.wall_coor_list = []
+        #if type == None:
+        #    type = "wall"
+        #self.type = type
         for wall_coor in wall_list:
             self.wall_coor_list.append(wall_coor)
         for wall_rect in rect_list:
@@ -194,18 +206,6 @@ class Walls(pygame.sprite.Sprite):
 #COLORS
 BLACK = (30, 30, 30)
 RED = (255, 30, 30)
-
-
-#gameover screen
-def gameover(surface):
-    surface.fill(RED)
-
-    #gameover text in the center
-    font = pygame.font.SysFont("centrury", 50)
-    text = font.render(" OOPS THERE GOES THE RETAKE ", True, BLACK)
-    recttext = (surface.get_width()/2-text.get_width()/2, surface.get_height()/2)
-    surface.blit(text, recttext)
-
 
 
 #screen parameters
@@ -225,9 +225,139 @@ enemy3 = Enemy(3, 10, (240, 160, 100))
 
 enem_list = [enemy1, enemy2, enemy3]
 
+#gameover screen
+def gameover(surface):
+
+
+    surface.fill(RED)
+
+    #gameover text in the center
+    font = pygame.font.SysFont("centrury", 50)
+    text = font.render(" OOPS THERE GOES THE RETAKE ", True, BLACK)
+    recttext = (surface.get_width()/2-text.get_width()/2, surface.get_height()/2)
+    surface.blit(text, recttext)
+
+    pygame.display.update()
+    # Wait for spacebar press to restart
+    while True:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+            elif event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_SPACE:
+                    return True
+                
+    
+
+musictrack = "none"
+
+def main_menu():
+
+    #background music
+    pygame.mixer_music.stop()
+    pygame.mixer_music.unload()
+    pygame.mixer_music.load(r"music\gamejam1menu.mp3")
+    pygame.mixer_music.play(-1)
+    musictrack = "menu"
+    
+    #creating player and enemy
+    player1.__init__()
+    player1.speed = player_speed
+    enemy1.__init__(1, 7, (250, 160, 40))
+    enemy2.__init__(2, 4)
+    enemy3.__init__(3, 10, (240, 160, 100))
+        
+
+    while True:
+
+
+        screen.fill((255, 255, 255))  # Fill the screen with white
+
+        # Draw menu options
+        title_font = pygame.font.Font(None, 50)
+        title_text = title_font.render("Oops There Goes The Retake", True, (0, 0, 0))
+        screen.blit(title_text, (140, 50))
+
+        font = pygame.font.Font(None, 36)
+        level1_text = font.render("Level 1", True, (0, 0, 0))
+        level2_text = font.render("Level 2", True, (0, 0, 0))
+        level3_text = font.render("Level 3", True, (0, 0, 0))
+
+        rect1 = level1_text.get_rect(topleft = (300, 200))
+        rect2 = level2_text.get_rect(topleft = (300, 250))
+        rect3 = level3_text.get_rect(topleft = (300, 300))
+
+        screen.blit(level1_text, (300, 200))
+        screen.blit(level2_text, (300, 250))
+        screen.blit(level3_text, (300, 300))
+
+        # Check for events
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+            elif event.type == pygame.MOUSEBUTTONDOWN:
+                x, y = pygame.mouse.get_pos()
+                # Check if user clicked on any of the level options
+                if rect1.collidepoint(event.pos):
+                    if musictrack == "menu":
+                        pygame.mixer_music.stop()
+                        pygame.mixer_music.unload
+                        pygame.mixer_music.load(r"music\gamejamlvl1.mp3") 
+                        pygame.mixer_music.play(-1)
+                        musictrack = "lvl1"  
+                    return 1
+                
+                        
+                elif rect2.collidepoint(event.pos):
+                    if musictrack == "menu":
+                        pygame.mixer_music.stop()
+                        pygame.mixer_music.unload
+                        pygame.mixer_music.load(r"music\gamejamlvl2.mp3") 
+                        pygame.mixer_music.play(-1)
+                        musictrack = "lvl2" 
+                    # Start level 2
+                    return 2
+                elif rect3.collidepoint(event.pos):
+                    # Start level 3
+                    return 3
+
+        pygame.display.update()
+
+# Initialize game variables and objects
+
+# Start with the main menu
+selected_level = main_menu()
+pygame.mixer_music.set_volume(0.5)
+
+
+
+#data (sizes and coordinates) for walls
+Kazybekwall1 = [(100, 10), (width_screen-210, 250)]
+Kazybekwall2 = [(170, 10), (270, 250)]
+Kazybekwall3 = [(100, 10), (120, 250)]
+Kazybekwall4 = [(100, 10), (120, 350)]
+Kazybekwall5 = [(170, 10), (270, 350)]
+Kazybekwall6 = [(100, 10), (width_screen-210, 350)]
+
+AbilayWall1 = [(10, 250), (120, 0)]
+AbilayWall2 = [(10, 300), (120, 350)]
+AbilayWall3 = [(10, 110), (220, 250)]
+AbilayWall4 = [(10, 110), (270, 250)]
+
+PanfilWall1 = [(10, 250), (width_screen-120, 0)]
+PanfilWall2 = [(10, 300), (width_screen-120, 350)]
+PanfilWall3 = [(10, 110), (270+170, 250)]
+PanfilWall4 = [(10, 110), (270+170+50, 250)]
+
+TolebiWall1 = [(100, 10), (120, 640)]
+TolebiWall2 = [(170, 10), (270, 640)]
+TolebiWall3 = [(100, 10), (width_screen-210, 640)]
+
 wallsrect = []
-wallssize = [(100, 10), (100, 10), (100, 10), (10, 250), (10, 250), (10, height_screen), (10, height_screen), (width_screen, 10), (width_screen, 10)]
-wallscoor = [(width_screen-240, 250), (300, 250), (120, 250), (120, 0), (width_screen-120, 0), (0, 0), (width_screen-10, 0), (0, height_screen-10), (0, 0)]
+wallssize = [TolebiWall1[0], TolebiWall2[0], TolebiWall3[0], Kazybekwall1[0], Kazybekwall2[0], Kazybekwall3[0], Kazybekwall4[0], Kazybekwall5[0], Kazybekwall6[0], AbilayWall4[0], AbilayWall3[0], AbilayWall2[0], AbilayWall1[0], PanfilWall4[0], PanfilWall3[0], PanfilWall2[0], PanfilWall1[0], (10, height_screen), (10, height_screen), (width_screen, 10), (width_screen, 10)]
+wallscoor = [TolebiWall1[1], TolebiWall2[1], TolebiWall3[1], Kazybekwall1[1], Kazybekwall2[1], Kazybekwall3[1], Kazybekwall4[1], Kazybekwall5[1], Kazybekwall6[1], AbilayWall4[1], AbilayWall3[1], AbilayWall2[1], AbilayWall1[1], PanfilWall4[1], PanfilWall3[1], PanfilWall2[1], PanfilWall1[1], (0, 0), (width_screen-10, 0), (0, height_screen-10), (0, 0)]
 for i in range(len(wallscoor)):
     wallsrect.append(pygame.rect.Rect(wallscoor[i][0], wallscoor[i][1], wallssize[i][0], wallssize[i][1]))
 walls = Walls(
@@ -235,35 +365,89 @@ walls = Walls(
     wallsrect
 )
 
-
+        
 
 while True:
+    if selected_level == 1:
+        # Code to start level 1
+        
+
+
+        screen.fill((255,255,255))
+
+
+
+
+        player1.update()
+        #enemy1.update(player1.rect, walls.wall_rect_list)
+        #enemy2.update(player1.rect, walls.wall_rect_list)
+        enemy3.update(player1.rect, walls.wall_rect_list)
+
+        player1.draw(screen)
+        #enemy1.draw(screen)
+        #enemy2.draw(screen)
+        enemy3.draw(screen)
+        walls.draw(screen)
+    
+    
+    elif selected_level == 2:
+        # Code to start level 2
+            
+
+        screen.fill((255,255,255))
+
+
+
+
+        player1.update()
+        enemy1.update(player1.rect, walls.wall_rect_list)
+        #enemy2.update(player1.rect, walls.wall_rect_list)
+        enemy3.update(player1.rect, walls.wall_rect_list)
+
+        player1.draw(screen)
+        enemy1.draw(screen)
+        #enemy2.draw(screen)
+        enemy3.draw(screen)
+        walls.draw(screen)
+
+    
+    if selected_level == 3:
+        # Code to start level 3
+            
+
+        screen.fill((255,255,255))
+
+
+
+
+        player1.update()
+        enemy1.update(player1.rect, walls.wall_rect_list)
+        enemy2.update(player1.rect, walls.wall_rect_list)
+        enemy3.update(player1.rect, walls.wall_rect_list)
+
+        player1.draw(screen)
+        enemy1.draw(screen)
+        enemy2.draw(screen)
+        enemy3.draw(screen)
+        walls.draw(screen)
+
+
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             pygame.quit()
             sys.exit()
-
-    screen.fill((255,255,255))
-
-
-
-
-    player1.update()
-    enemy1.update(player1.rect, walls.wall_rect_list)
-    enemy2.update(player1.rect, walls.wall_rect_list)
-    enemy3.update(player1.rect, walls.wall_rect_list)
-
-    player1.draw(screen)
-    enemy1.draw(screen)
-    enemy2.draw(screen)
-    enemy3.draw(screen)
-    walls.draw(screen)
-    pygame.draw.circle(screen, BLACK, (width_screen/2, height_screen/2), 100, 10)
-
+        elif event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_ESCAPE:
+                selected_level = main_menu()
     #check if enemy is touching the player
     for enem in enem_list:
         if player1.collision(enem):
-            gameover(screen)    
+            
+            if gameover(screen):
+                player1.speed = 0
+                pygame.mixer_music.stop()
+                pygame.mixer_music.unload()    
+                selected_level = main_menu()
 
     pygame.display.update()    
     framespersecond.tick(FPS)
