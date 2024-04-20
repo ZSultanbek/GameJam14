@@ -15,7 +15,7 @@ player_speed = 10
 class Player(pygame.sprite.Sprite):
     def __init__(self):
         super().__init__()
-        self.width = 10
+        self.width = 20
         self.height = 20
         self.speed = player_speed
         self.rect = pygame.rect.Rect(50, 50, self.width, self.height)
@@ -26,25 +26,44 @@ class Player(pygame.sprite.Sprite):
 
         pressed_key = pygame.key.get_pressed()
 
-        next_rect = self.rect.copy()     
+        next_rect = self.rect.copy()  
+        directionx = 0
+        directiony = 0
         
         if pressed_key[pygame.K_LEFT]:
             if self.rect.bottomleft[0] > 0:
-                next_rect.move_ip(-self.speed, 0)
+                directionx = -1
         if pressed_key[pygame.K_RIGHT]:
             if self.rect.bottomright[0] < width_screen:
-                next_rect.move_ip(self.speed, 0)
+                directionx = 1
         if pressed_key[pygame.K_UP]:
             if self.rect.top > 0:
-                next_rect.move_ip(0, -self.speed)
+                directiony = -1
         if pressed_key[pygame.K_DOWN]:
             if self.rect.bottom < height_screen:
-                next_rect.move_ip(0, self.speed)
+                directiony = 1
         
+        
+        #normalize the diagonal movement
+        if directionx != 0 and directiony != 0:
+            directionx = directionx * (0.5**0.5)
+            directiony = directiony * (0.5**0.5)
 
-        if next_rect.collidelist(walls.wall_rect_list) == -1:      
-            self.rect = next_rect.copy()
+        next_rect1 = next_rect.copy()
 
+        next_rect1.move_ip(directionx*self.speed, directiony*self.speed)
+        if next_rect1.collidelist(walls.wall_rect_list) == -1:      
+            next_rect.move_ip(directionx*self.speed, directiony*self.speed)
+        else:
+            directionx /= 2
+            directiony /= 2
+            next_rect1.move_ip(-directionx*self.speed, -directiony*self.speed)
+            if next_rect1.collidelist(walls.wall_rect_list) == -1:      
+                next_rect.move_ip(directionx*self.speed, directiony*self.speed)
+        
+        
+        self.rect = next_rect.copy()
+        
     def draw(self, surface):
         pygame.draw.rect(surface, (20, 30, 120), self.rect)
 
@@ -225,6 +244,9 @@ enemy3 = Enemy(3, 10, (240, 160, 100))
 
 enem_list = [enemy1, enemy2, enemy3]
 
+
+musictrack = "none"
+
 #gameover screen
 def gameover(surface):
 
@@ -236,6 +258,12 @@ def gameover(surface):
     text = font.render(" OOPS THERE GOES THE RETAKE ", True, BLACK)
     recttext = (surface.get_width()/2-text.get_width()/2, surface.get_height()/2)
     surface.blit(text, recttext)
+
+    pygame.mixer_music.stop()
+    pygame.mixer_music.unload()   
+    pygame.mixer_music.load(r"music\gamejamloose.mp3") 
+    pygame.mixer_music.play(3) 
+    musictrack = "loose"
 
     pygame.display.update()
     # Wait for spacebar press to restart
@@ -250,7 +278,6 @@ def gameover(surface):
                 
     
 
-musictrack = "none"
 
 def main_menu():
 
@@ -320,6 +347,12 @@ def main_menu():
                     # Start level 2
                     return 2
                 elif rect3.collidepoint(event.pos):
+                    if musictrack == "menu":
+                        pygame.mixer_music.stop()
+                        pygame.mixer_music.unload
+                        pygame.mixer_music.load(r"music\gamejamlvl3.mp3") 
+                        pygame.mixer_music.play(-1)
+                        musictrack = "lvl3" 
                     # Start level 3
                     return 3
 
@@ -445,8 +478,6 @@ while True:
             
             if gameover(screen):
                 player1.speed = 0
-                pygame.mixer_music.stop()
-                pygame.mixer_music.unload()    
                 selected_level = main_menu()
 
     pygame.display.update()    
