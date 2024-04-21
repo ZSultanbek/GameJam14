@@ -402,28 +402,32 @@ def main_menu(player1, enem_list):
     player1.speed = player_speed
 
 
+    bg = pygame.image.load(r"images\background1.png")
+    bg = pygame.transform.scale(bg, (700, 750))
+    
     while True:
 
-
-        screen.fill((255, 255, 255))  # Fill the screen with white
+        screen.blit(bg, (0,0))
 
         # Draw menu options
-        title_font = pygame.font.Font(None, 50)
-        title_text = title_font.render("Oops There Goes The Retake", True, (0, 0, 0))
-        screen.blit(title_text, (140, 50))
 
         font = pygame.font.Font(None, 36)
-        level1_text = font.render("Level 1", True, (0, 0, 0))
-        level2_text = font.render("Level 2", True, (0, 0, 0))
-        level3_text = font.render("Level 3", True, (0, 0, 0))
+        level1_text = font.render("Level 1", True, (255, 255, 255))
+        level2_text = font.render("Level 2", True, (255, 255, 255))
+        level3_text = font.render("Level 3", True, (255, 255, 255))
 
-        rect1 = level1_text.get_rect(topleft = (300, 200))
-        rect2 = level2_text.get_rect(topleft = (300, 250))
-        rect3 = level3_text.get_rect(topleft = (300, 300))
+        rect1 = level1_text.get_rect(topleft = (300, 300))
+        rect2 = level2_text.get_rect(topleft = (300, 350))
+        rect3 = level3_text.get_rect(topleft = (300, 400))
+        
 
-        screen.blit(level1_text, (300, 200))
-        screen.blit(level2_text, (300, 250))
-        screen.blit(level3_text, (300, 300))
+
+        pygame.draw.rect(screen, (50, 20, 50), rect1)
+        pygame.draw.rect(screen, (50, 20, 50), rect2)
+        pygame.draw.rect(screen, (50, 20, 50), rect3)
+        screen.blit(level1_text, rect1.topleft)
+        screen.blit(level2_text, rect2.topleft)
+        screen.blit(level3_text, rect3.topleft)
 
         # Check for events
         for event in pygame.event.get():
@@ -565,7 +569,7 @@ end_time = time.time()
 currenttime = round(start_time-end_time)+30
 
 ratscore = 0
-passedlevels = [0, 0, 0]
+passedlevels = [0, 1, 1]
 
 
 #win screen
@@ -575,7 +579,8 @@ def gamewinscreen(screen, passedlevels, enem_list):
         if lvl != 1:
             return 0
     
-    winscreen = pygame.image.load(r"images\Screenshot 2024-04-21 173639.png")
+    winscreen = pygame.image.load(r"images\IMG_5291.JPG")
+    winscreen = pygame.transform.scale(winscreen, (winscreen.get_width()/2, winscreen.get_height()/2))
     screen.blit(winscreen, (0, 0))
 
     pygame.mixer_music.stop()
@@ -624,7 +629,7 @@ while True:
         walls.draw(screen)
     
 
-        if currenttime <= 0:
+        if currenttime <= 27:
             passedlevels[0] = 1
             gamewinscreen(screen, passedlevels, enem_list)
             if levelwin(screen, 1):
@@ -670,6 +675,7 @@ while True:
             passedlevels[1] = 1
             gamewinscreen(screen, passedlevels, enem_list)
             if levelwin(screen, 2):
+                ratscore = 0
                 player1.speed = 0
                 for enem in enem_list:
                     enem.dissapear()
@@ -710,6 +716,7 @@ while True:
             passedlevels[2] = 1
             gamewinscreen(screen, passedlevels, enem_list)
             if levelwin(screen, 3):
+                ratscore = 0
                 player1.speed = 0
                 for enem in enem_list:
                     enem.dissapear()
