@@ -1,6 +1,7 @@
 import pygame
 import sys
 import time
+import math
 
 pygame.init()
 
@@ -107,10 +108,31 @@ class Enemy(pygame.sprite.Sprite):
             spawnpoint = (300, 300)
         self.spawnpoint = spawnpoint
         self.speed = speed
+        
         self.ogspeed = speed
-        self.rect = pygame.rect.Rect(self.spawnpoint[0], self.spawnpoint[1], self.width, self.width)
         self.last_dx = 0
         self.last_dy = 0
+
+
+        if self.type == 1:
+            self.image = pygame.image.load(r"images\teacherhead.png")
+            self.image = pygame.transform.scale(self.image, (30, 30))
+            self.rect = self.image.get_rect()
+            self.rect.topleft = spawnpoint
+
+        elif self.type == 2:
+            self.image = pygame.image.load(r"images\teacher1head.png")
+            self.image = pygame.transform.scale(self.image, (30, 30))
+            self.rect = self.image.get_rect()
+            self.rect.topleft = spawnpoint
+        
+        elif self.type == 3:
+            self.image = pygame.image.load(r"images\onay.png")
+            self.image = pygame.transform.scale(self.image, (round(self.image.get_width()/2), self.image.get_height()/2))
+            self.rect = self.image.get_rect()
+            self.rect.topleft = spawnpoint
+
+        self.imageog = self.image.copy()
         self.last_position = self.rect.topleft
     
     def update(self, player_rect, walls):
@@ -121,18 +143,46 @@ class Enemy(pygame.sprite.Sprite):
             dx, dy = self.type2(player_rect, walls)
         elif self.type == 3:
             dx, dy = self.type3(player_rect, walls)
-            
-            
+        
+        degree = 0
+        if self.type != 3:
+            if (dx > 0.5) and dy > 0.5:
+                degree = 45
+            elif (dx < -0.5) and dy > 0.5:
+                degree = -45
+            elif (dx < -0.5) and dy > 0.5:
+                degree = 90-45
+            elif (dx > 0.5) and dy > 0.5:
+                degree = 90+45
+            elif (dx < -0.5) and dy < -0.5:
+                degree = 180+45
+            elif (dx > 0.5) and dy < -0.5:
+                degree = 180-45
 
+            if (dx < 0.5 and dx > -0.5) and dy < -0.5:
+                degree = 180
+            elif dx > 0.5 and (dy < 0.5 and dy > -0.5):
+                degree = 90
+            elif dx < -0.5 and (dy < 0.5 and dy > -0.5):
+                degree = -90
+            elif (dx > -0.5 and dx < 0.5) and dy > 0.5:
+                degree = 0
+
+        self.imagerotated = self.imageog.copy()
+        self.imagerotated = pygame.transform.rotate(self.imagerotated, degree)
+
+
+        self.image = self.imagerotated.copy()
         # Move towards the player
         self.rect.x += dx * self.speed
         self.rect.y += dy * self.speed
+
 
         self.last_dx = dx
         self.last_dy = dy
 
     def draw(self, surface):
-        pygame.draw.rect(surface, self.color, self.rect)
+        surface.blit(self.image, self.rect)
 
     def check_player(self, player_rect):
         
@@ -328,7 +378,7 @@ player1 = Player()
 
 
 enemy1 = Enemy(1, 7, (250, 160, 40), (600, 600))
-enemy2 = Enemy(3, 10, (240, 160, 100), (280, 300))
+enemy2 = Enemy(3, 9, (240, 160, 100), (280, 300))
 enemy3 = Enemy(2, 4, (255, 50, 20), (50, 500))
 enem_list = [enemy1, enemy2, enemy3]
 for enem in enem_list:
@@ -607,7 +657,7 @@ while True:
         enemy3.draw(screen)
         walls.draw(screen)
 
-        counter(screen, " RAT SCORE: {0}/{1}".format(ratscore, ratend))
+        counter(screen, " ONAY! score: {0}/{1}".format(ratscore, ratend))
         
         if currenttime <= 0:
             if gameover(screen):
@@ -648,7 +698,7 @@ while True:
         enemy3.draw(screen)
         walls.draw(screen)
         
-        counter(screen, " RAT SCORE: {0}/{1}".format(ratscore, ratend))
+        counter(screen, " ONAY! score: {0}/{1}".format(ratscore, ratend))
         if currenttime <= 0:
             if gameover(screen):
                 player1.speed = 0
