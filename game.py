@@ -629,7 +629,7 @@ while True:
         walls.draw(screen)
     
 
-        if currenttime <= 27:
+        if currenttime <= 0:
             passedlevels[0] = 1
             gamewinscreen(screen, passedlevels, enem_list)
             if levelwin(screen, 1):
@@ -641,7 +641,7 @@ while True:
 
     
     elif selected_level == 2:
-        ratend = 10
+        ratend = 5
         currenttime = round(start_time-end_time)+60
         
         # Code to start level 2
@@ -684,7 +684,7 @@ while True:
 
     
     if selected_level == 3:
-        ratend = 20
+        ratend = 10
         currenttime = round(start_time-end_time)+120
         # Code to start level 3
             
